@@ -11,8 +11,11 @@
 - Shared starter CSS and Ruff linting configuration.
 
 **Not implemented yet:** each of us should responsible for each frontend(html file) plus a backend(routs.py file).
+
 Rui: **Add Clothing** + initial project setup | `routes/add_clothing.py` | `templates/add_clothing.html
+
 David:  **My Looks** | `routes/looks.py` | `templates/looks.html` 
+
 Jonathan: **My Closet** | `routes/closet.py` | `templates/closet.html` 
 
 ### Shared foundation
