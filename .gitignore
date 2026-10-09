@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local photos uploaded through the future Add Clothing feature
+static/uploads/

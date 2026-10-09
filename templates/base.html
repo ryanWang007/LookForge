@@ -8,11 +8,11 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="{{ url_for('closet') }}">LookForge</a>
+    <a class="brand" href="{{ url_for('closet.index') }}">LookForge</a>
     <nav aria-label="Main navigation">
-      <a href="{{ url_for('closet') }}">My Closet</a>
-      <a href="{{ url_for('looks') }}">My Looks</a>
-      <a href="{{ url_for('add_clothing') }}">Add Clothing</a>
+      <a href="{{ url_for('closet.index') }}">My Closet</a>
+      <a href="{{ url_for('looks.index') }}">My Looks</a>
+      <a href="{{ url_for('add_clothing.index') }}">Add Clothing</a>
     </nav>
   </header>
   <main class="content">

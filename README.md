@@ -5,7 +5,7 @@ LookForge is a small virtual closet and outfit organizer built with **Python**, 
 ## Current status
 
 This repository contains the **project foundation only**:
-- Flask app startup and basic routes (`/closet`, `/looks`, `/add-clothing`)
+- Flask app entry point registering three separate route Blueprints (`/closet`, `/looks`, `/add-clothing`)
 - A shared Jinja2 layout and three placeholder templates
 - Local SQLite connection helpers and a starter schema
 - Basic shared CSS and Ruff configuration
@@ -41,6 +41,22 @@ The app automatically creates `instance/lookforge.db` on first run from `schema.
 
 Application code can import `get_db` from `db.py` when implementing a feature. Foreign-key enforcement is enabled on these connections.
 
+## Feature ownership (Flask Blueprints)
+
+Each team member can edit one **backend route module** and its matching **Jinja2 template**:
+
+| Feature | Backend | Frontend | Blueprint endpoint |
+| --- | --- | --- | --- |
+| My Closet | `routes/closet.py` | `templates/closet.html` | `closet.index` |
+| My Looks | `routes/looks.py` | `templates/looks.html` | `looks.index` |
+| Add Clothing | `routes/add_clothing.py` | `templates/add_clothing.html` | `add_clothing.index` |
+
+`app.py` only creates the Flask app and registers Blueprints; keep feature-specific logic out of it. Routes use `render_template(...)` for now. The shared navigation in `templates/base.html` uses Flask endpoints such as `url_for('closet.index')`.
+
+For database access, use the shared `get_db()` function from `db.py`. `schema.sql` is a shared **starter** schema; coordinate any changes to the tables. There is **no form handling, upload logic, or CRUD yet**.
+
+Uploaded photos, if implemented later, should be saved locally and never committed to GitHub. The `static/uploads/` directory is in `.gitignore`.
+
 ## Code style
 
 Run `ruff check .` after activating your environment, or run `.\.venv\Scripts\python.exe -m ruff check .` on Windows.
@@ -56,6 +72,11 @@ LookForge/
   app.py
   db.py
   schema.sql
+  routes/
+    __init__.py
+    closet.py
+    looks.py
+    add_clothing.py
   templates/
     base.html
     closet.html
