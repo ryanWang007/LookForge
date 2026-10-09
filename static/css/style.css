@@ -1,0 +1,48 @@
+/* Shared baseline styling only. Each feature owner can extend this. */
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #253247;
+  background: #f8fafc;
+}
+
+body {
+  margin: 0;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.brand {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+nav a {
+  color: #334155;
+  text-decoration: none;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.content {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
