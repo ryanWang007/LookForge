@@ -1,29 +1,19 @@
 # LookForge
 
-A virtual closet and outfit organizer for our **Oregon State University CS467 Capstone** project.
-
 **Tech stack:** Python · Flask · Jinja2 (HTML templates) · SQLite · CSS · Ruff
 
 ## Project status
+ The repository currently provides:
 
-**Foundation is set up; feature development is next.** The repository currently provides:
-
-- A runnable Flask app and three registered **Blueprints** (one backend module per page).
+- A runnable Flask app and three registered **Blueprints** (one backend module per page， you can find it in the routes).
 - Three placeholder HTML pages and a shared Jinja2 layout/navigation.
 - SQLite connection helpers and an initial database schema.
 - Shared starter CSS and Ruff linting configuration.
 
-**Not implemented yet:** clothing form submission, image upload, add/edit/delete clothing, clothing gallery, outfit creation, or final UI designs. Each feature owner will build these in their own branch.
-
-## Team responsibilities
-
-| Team member | Feature | Backend (Python) | Frontend (Jinja2 HTML) | Main tasks |
-| --- | --- | --- | --- | --- |
-| **@ryanWang007 (repo owner)** | **Add Clothing** + initial project setup | `routes/add_clothing.py` | `templates/add_clothing.html` | Form inputs, photo upload, validation, saving clothing records |
-| **David** | **My Looks** | `routes/looks.py` | `templates/looks.html` | Display and create outfits using saved clothing items |
-| **Jonathan** | **My Closet** | `routes/closet.py` | `templates/closet.html` | Display clothing, edit item details, delete items |
-
-Ownership describes each person's **main feature**, not an exclusive restriction on which files they may edit. Please discuss shared changes before modifying the database schema, common layout, or shared styles.
+**Not implemented yet:** each of us should responsible for each frontend(html file) plus a backend(routs.py file).
+Rui: **Add Clothing** + initial project setup | `routes/add_clothing.py` | `templates/add_clothing.html
+David:  **My Looks** | `routes/looks.py` | `templates/looks.html` 
+Jonathan: **My Closet** | `routes/closet.py` | `templates/closet.html` 
 
 ### Shared foundation
 
