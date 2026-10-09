@@ -1,20 +1,87 @@
 # LookForge
 
-LookForge is a small virtual closet and outfit organizer built with **Python**, **Flask**, **Jinja2**, and **SQLite** for our CS467 team project.
+A virtual closet and outfit organizer for our **Oregon State University CS467 Capstone** project.
 
-## Current status
+**Tech stack:** Python · Flask · Jinja2 (HTML templates) · SQLite · CSS · Ruff
 
-This repository contains the **project foundation only**:
-- Flask app entry point registering three separate route Blueprints (`/closet`, `/looks`, `/add-clothing`)
-- A shared Jinja2 layout and three placeholder templates
-- Local SQLite connection helpers and a starter schema
-- Basic shared CSS and Ruff configuration
+## Project status
 
-**Not yet implemented:** Add Clothing form, photo uploads, clothing CRUD, saving/viewing outfits, or final page designs. Those belong to the feature-development phase.
+**Foundation is set up; feature development is next.** The repository currently provides:
 
-## Run locally (Windows PowerShell)
+- A runnable Flask app and three registered **Blueprints** (one backend module per page).
+- Three placeholder HTML pages and a shared Jinja2 layout/navigation.
+- SQLite connection helpers and an initial database schema.
+- Shared starter CSS and Ruff linting configuration.
 
-From the cloned `LookForge` folder:
+**Not implemented yet:** clothing form submission, image upload, add/edit/delete clothing, clothing gallery, outfit creation, or final UI designs. Each feature owner will build these in their own branch.
+
+## Team responsibilities
+
+| Team member | Feature | Backend (Python) | Frontend (Jinja2 HTML) | Main tasks |
+| --- | --- | --- | --- | --- |
+| **@ryanWang007 (repo owner)** | **Add Clothing** + initial project setup | `routes/add_clothing.py` | `templates/add_clothing.html` | Form inputs, photo upload, validation, saving clothing records |
+| **David** | **My Looks** | `routes/looks.py` | `templates/looks.html` | Display and create outfits using saved clothing items |
+| **Jonathan** | **My Closet** | `routes/closet.py` | `templates/closet.html` | Display clothing, edit item details, delete items |
+
+Ownership describes each person's **main feature**, not an exclusive restriction on which files they may edit. Please discuss shared changes before modifying the database schema, common layout, or shared styles.
+
+### Shared foundation
+
+| File | Purpose |
+| --- | --- |
+| `app.py` | Creates the Flask app, registers the three Blueprints, redirects `/` to My Closet |
+| `db.py` | SQLite connections and database initialization; feature code can use `get_db()` |
+| `schema.sql` | Starter database structure for clothing and outfits |
+| `routes/__init__.py` | Marks `routes/` as a Python package; no feature logic needed here |
+| `templates/base.html` | Shared navigation and Jinja2 template structure |
+| `static/css/style.css` | Shared baseline styling |
+| `pyproject.toml` | Ruff configuration |
+
+## Project structure
+
+```text
+LookForge/
+├── app.py
+├── db.py
+├── schema.sql
+├── routes/
+│   ├── __init__.py
+│   ├── add_clothing.py
+│   ├── closet.py
+│   └── looks.py
+├── templates/
+│   ├── base.html
+│   ├── add_clothing.html
+│   ├── closet.html
+│   └── looks.html
+├── static/
+│   └── css/
+│       └── style.css
+├── .gitignore
+├── pyproject.toml
+├── requirements.txt
+├── requirements-dev.txt
+└── README.md
+```
+
+`instance/lookforge.db` is generated **locally** on first run. A future `static/uploads/` folder can store uploaded photos locally; neither generated database files nor uploaded photos should be committed to Git.
+
+## Get started
+
+### 1. Clone the private repository
+
+After accepting the GitHub collaborator invitation:
+
+```bash
+git clone https://github.com/ryanWang007/LookForge.git
+cd LookForge
+```
+
+If you already cloned the project, open the local LookForge folder in VS Code and run `git pull --ff-only origin main` on a clean `main` branch to get the latest foundation.
+
+### 2. Install dependencies and start Flask
+
+**Windows (VS Code PowerShell terminal)**
 
 ```powershell
 py -m venv .venv
@@ -22,11 +89,9 @@ py -m venv .venv
 .\.venv\Scripts\python.exe app.py
 ```
 
-Open <http://127.0.0.1:5000>. The home page redirects to My Closet. Stop the server with `Ctrl+C`.
+If `py` is unavailable, try `python -m venv .venv`.
 
-If `py` is unavailable, use `python -m venv .venv` instead.
-
-## Run locally (macOS / Linux)
+**macOS / Linux**
 
 ```bash
 python3 -m venv .venv
@@ -35,57 +100,53 @@ python -m pip install -r requirements-dev.txt
 python app.py
 ```
 
-## Local database
+Open **http://127.0.0.1:5000**. Flask runs locally; stop it with `Ctrl+C`.
 
-The app automatically creates `instance/lookforge.db` on first run from `schema.sql`. It currently defines `clothing`, `looks`, and `look_items` as **starter** tables. They can be adjusted together as the features are designed. The generated `.db` file and each developer's data are **not tracked by Git**.
+### 3. Check the three placeholder pages
 
-Application code can import `get_db` from `db.py` when implementing a feature. Foreign-key enforcement is enabled on these connections.
+| Page | URL | Blueprint endpoint |
+| --- | --- | --- |
+| My Closet | `/closet` | `closet.index` |
+| My Looks | `/looks` | `looks.index` |
+| Add Clothing | `/add-clothing` | `add_clothing.index` |
 
-## Feature ownership (Flask Blueprints)
+Each module in `routes/` handles its own URL, and its HTML template extends `templates/base.html`. For example, the shared navigation uses `url_for('looks.index')`.
 
-Each team member can edit one **backend route module** and its matching **Jinja2 template**:
+## SQLite and photo storage
 
-| Feature | Backend | Frontend | Blueprint endpoint |
-| --- | --- | --- | --- |
-| My Closet | `routes/closet.py` | `templates/closet.html` | `closet.index` |
-| My Looks | `routes/looks.py` | `templates/looks.html` | `looks.index` |
-| Add Clothing | `routes/add_clothing.py` | `templates/add_clothing.html` | `add_clothing.index` |
+The app creates `instance/lookforge.db` automatically from `schema.sql` when started. The **starter tables** are:
 
-`app.py` only creates the Flask app and registers Blueprints; keep feature-specific logic out of it. Routes use `render_template(...)` for now. The shared navigation in `templates/base.html` uses Flask endpoints such as `url_for('closet.index')`.
+- `clothing` — clothing ID, name, category, color, season, photo filename, created date.
+- `looks` — outfit/Look ID, name, created date.
+- `look_items` — association between Looks and clothing items.
 
-For database access, use the shared `get_db()` function from `db.py`. `schema.sql` is a shared **starter** schema; coordinate any changes to the tables. There is **no form handling, upload logic, or CRUD yet**.
+Access SQLite from Flask feature code with `from db import get_db`. Database connections enable foreign-key checks.
 
-Uploaded photos, if implemented later, should be saved locally and never committed to GitHub. The `static/uploads/` directory is in `.gitignore`.
+**Planned photo approach (not yet implemented):** Save actual JPG/PNG files under `static/uploads/`, and store the saved **filename** in the `clothing.photo_filename` database field. The ID in `clothing` identifies a clothing record, not a separate image record.
 
-## Code style
+Local SQLite records and uploaded photos **do not sync between teammates through GitHub**. Each person has their own test data. Changing `schema.sql` does not automatically alter tables in an existing database; coordinate schema changes and migrations before relying on them.
 
-Run `ruff check .` after activating your environment, or run `.\.venv\Scripts\python.exe -m ruff check .` on Windows.
+## GitHub workflow
 
-## Team workflow
+1. Start from the latest `main`, and create a **feature branch**:
+   - Add Clothing: `feature/add-clothing`
+   - My Looks (David): `feature/my-looks`
+   - My Closet (Jonathan): `feature/my-closet`
+2. Implement and test your own feature locally.
+3. Run Ruff before pushing:
+   - Windows: `.\.venv\Scripts\python.exe -m ruff check .`
+   - macOS / Linux (activated environment): `ruff check .`
+4. Push the branch and open a **Pull Request (PR)** targeting `main`.
+5. Ask **at least one other team member** to review and approve it before merging. Avoid direct pushes to `main`.
 
-Please work on your own feature branch and open a pull request into `main`. Ask another teammate to review and approve it before merging. This is a team rule; GitHub Free private repositories do not enforce the approval automatically.
+**Note:** GitHub Free with a private repository allows PR reviews, but does not enforce required approvals through branch protection. Following this review policy is our team agreement.
 
-## Project layout
+For shared files (`schema.sql`, `db.py`, `app.py`, `templates/base.html`, and `static/css/style.css`), communicate planned changes so another person's work is not broken.
 
-```text
-LookForge/
-  app.py
-  db.py
-  schema.sql
-  routes/
-    __init__.py
-    closet.py
-    looks.py
-    add_clothing.py
-  templates/
-    base.html
-    closet.html
-    looks.html
-    add_clothing.html
-  static/
-    css/style.css
-  requirements.txt
-  requirements-dev.txt
-  pyproject.toml
-  README.md
-```
+## Next development steps
+
+- **Add Clothing:** implement the form, file validation/upload, and saving a clothing record.
+- **My Closet:** read saved clothing from SQLite, display items/photos, and support edit/delete.
+- **My Looks:** select existing clothing items and save/view outfit combinations.
+
+Keep the initial implementation simple and localhost-first. We can refine the schema and UI together as the features develop.
