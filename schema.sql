@@ -1,5 +1,4 @@
--- Starter schema for LookForge. The team can evolve these fields as features grow.
--- This script is safe to run repeatedly on an existing database.
+-- Starter schema for LookForge. 
 
 CREATE TABLE IF NOT EXISTS clothing (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
