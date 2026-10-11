@@ -1,4 +1,4 @@
-"""LookForge Flask application entry point."""
+"""LookForge Flask application init app."""
 
 from pathlib import Path
 
