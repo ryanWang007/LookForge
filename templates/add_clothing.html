@@ -1,6 +1,586 @@
 {% extends "base.html" %}
 {% block title %}Add Clothing{% endblock %}
+
 {% block content %}
-<h1>Add Clothing</h1>
-<p>Page placeholder — the add-clothing form and photo upload are not implemented.</p>
+<style>
+  /* Page-only styles: this file does not change the shared stylesheet. */
+  .content {
+    max-width: 1296px;
+    margin: 36px auto 64px;
+    padding: 0 28px;
+  }
+
+  .site-header {
+    gap: clamp(30px, 7.5vw, 110px);
+    padding: 15px clamp(24px, 3.9vw, 54px);
+    box-shadow: 0 2px 9px rgba(28, 43, 67, 0.08);
+  }
+
+  .site-header .brand {
+    color: #1659c8;
+    font-size: 2rem;
+    letter-spacing: -0.06em;
+  }
+
+  .site-header nav {
+    gap: clamp(18px, 3.6vw, 48px);
+  }
+
+  .site-header nav a {
+    display: inline-block;
+    position: relative;
+    padding: 12px 0;
+    color: #4b5563;
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  .site-header nav a[href$="/add-clothing"] {
+    color: #1458c6;
+    font-weight: 700;
+  }
+
+  .site-header nav a[href$="/add-clothing"]::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    bottom: -10px;
+    left: -4px;
+    height: 4px;
+    background: #1659c8;
+    border-radius: 4px;
+  }
+
+  .lf-add-page {
+    color: #182231;
+  }
+
+  .lf-add-page *,
+  .lf-add-page *::before,
+  .lf-add-page *::after {
+    box-sizing: border-box;
+  }
+
+  .lf-add-heading {
+    margin-bottom: 34px;
+  }
+
+  .lf-add-heading h1 {
+    margin: 0 0 5px;
+    font-size: clamp(2rem, 3.5vw, 2.9rem);
+    line-height: 1.18;
+    letter-spacing: -0.04em;
+  }
+
+  .lf-add-heading p {
+    margin: 0;
+    color: #5e687a;
+    font-size: 1.32rem;
+  }
+
+  .lf-add-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.44fr) minmax(0, 1fr);
+    gap: 34px;
+    min-height: 550px;
+    padding: 32px 36px;
+    border: 1px solid #d9dfe8;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .lf-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-width: 0;
+  }
+
+  .lf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    min-width: 0;
+  }
+
+  .lf-field label,
+  .lf-photo-label,
+  .lf-preview-label {
+    color: #17202e;
+    font-size: 1.11rem;
+    font-weight: 700;
+  }
+
+  .lf-field input,
+  .lf-field select {
+    width: 100%;
+    height: 59px;
+    padding: 0 17px;
+    border: 1px solid #cfd7e2;
+    border-radius: 9px;
+    background: #fff;
+    color: #263245;
+    font: inherit;
+    font-size: 1.04rem;
+  }
+
+  .lf-field input::placeholder {
+    color: #768195;
+  }
+
+  .lf-field select:invalid {
+    color: #687486;
+  }
+
+  .lf-field input:focus-visible,
+  .lf-field select:focus-visible,
+  .lf-upload-zone:focus-within,
+  .lf-action:focus-visible {
+    outline: 3px solid rgba(24, 96, 211, 0.23);
+    outline-offset: 2px;
+  }
+
+  .lf-fields-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  .lf-photo-column {
+    min-width: 0;
+    padding-left: 33px;
+    border-left: 1px solid #dde3ec;
+  }
+
+  .lf-photo-label,
+  .lf-preview-label {
+    display: block;
+    margin: 2px 0 13px;
+  }
+
+  .lf-upload-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 242px;
+    padding: 22px 12px;
+    border: 2px dashed #cbd4e2;
+    border-radius: 10px;
+    background: #fcfdff;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 140ms ease, background 140ms ease;
+  }
+
+  .lf-upload-zone:hover,
+  .lf-upload-zone.is-dragging {
+    border-color: #1659c8;
+    background: #f1f6ff;
+  }
+
+  .lf-upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lf-image-icon {
+    width: 60px;
+    height: 60px;
+    color: #9aa4b2;
+  }
+
+  .lf-upload-primary {
+    margin-top: 1px;
+    color: #1659c8;
+    font-size: 1.12rem;
+    font-weight: 700;
+  }
+
+  .lf-upload-secondary,
+  .lf-upload-details {
+    color: #748093;
+    font-size: 0.99rem;
+  }
+
+  .lf-upload-details {
+    margin-top: 8px;
+  }
+
+  .lf-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .lf-preview-section {
+    margin-top: 27px;
+  }
+
+  .lf-preview-frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 170px;
+    height: 166px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f0f2f6;
+  }
+
+  .lf-preview-frame .lf-image-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .lf-preview-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .lf-preview-name {
+    max-width: 260px;
+    margin: 9px 0 0;
+    color: #5e687a;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  .lf-file-message {
+    margin: 10px 0 0;
+    color: #af3030;
+    font-size: 0.9rem;
+  }
+
+  .lf-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 17px;
+    margin-top: 28px;
+  }
+
+  .lf-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 143px;
+    min-height: 57px;
+    padding: 12px 22px;
+    border-radius: 9px;
+    font: inherit;
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .lf-cancel {
+    border: 1px solid #d0d8e3;
+    background: #fff;
+    color: #536073;
+  }
+
+  .lf-save {
+    border: 1px solid #1659c8;
+    background: #1659c8;
+    color: #fff;
+  }
+
+  .lf-cancel:hover {
+    background: #f7f9fc;
+  }
+
+  .lf-save:hover {
+    background: #114ba9;
+  }
+
+  .lf-demo-notice {
+    margin: 13px 0 0;
+    color: #5e687a;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  .lf-form-status {
+    margin: 14px 0 0;
+    padding: 12px 15px;
+    border: 1px solid #bfcef0;
+    border-radius: 8px;
+    background: #f1f6ff;
+    color: #20519a;
+    text-align: right;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 900px) {
+    .lf-add-card {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      min-height: 0;
+    }
+
+    .lf-photo-column {
+      padding: 26px 0 0;
+      border-top: 1px solid #dde3ec;
+      border-left: 0;
+    }
+
+    .lf-upload-zone {
+      min-height: 190px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .content {
+      margin-top: 24px;
+      padding: 0 16px;
+    }
+
+    .site-header {
+      gap: 14px;
+      padding: 14px 16px;
+    }
+
+    .site-header .brand {
+      font-size: 1.6rem;
+    }
+
+    .site-header nav {
+      gap: 14px;
+    }
+
+    .site-header nav a {
+      font-size: 0.9rem;
+    }
+
+    .lf-add-heading p {
+      font-size: 1.08rem;
+    }
+
+    .lf-add-card {
+      padding: 22px 18px;
+    }
+
+    .lf-fields-row {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    .lf-actions {
+      gap: 12px;
+    }
+
+    .lf-action {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+</style>
+
+<section class="lf-add-page" aria-labelledby="lf-page-heading">
+  <div class="lf-add-heading">
+    <h1 id="lf-page-heading">Add Clothing</h1>
+    <p>Add a new item to your closet.</p>
+  </div>
+
+  <!-- Progress Report #1: front-end layout only. No POST or SQLite write yet. -->
+  <form id="lf-add-form" novalidate>
+    <div class="lf-add-card">
+      <div class="lf-form-fields">
+        <div class="lf-field">
+          <label for="lf-clothing-name">Clothing Name</label>
+          <input id="lf-clothing-name" name="name" type="text"
+                 placeholder="e.g. Blue Shirt" autocomplete="off">
+        </div>
+
+        <div class="lf-fields-row">
+          <div class="lf-field">
+            <label for="lf-category">Category</label>
+            <select id="lf-category" name="category">
+              <option value="" selected disabled>Select a category</option>
+              <option value="Tops">Tops</option>
+              <option value="Bottoms">Bottoms</option>
+              <option value="Dresses">Dresses</option>
+              <option value="Outerwear">Outerwear</option>
+              <option value="Shoes">Shoes</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="lf-field">
+            <label for="lf-color">Color</label>
+            <select id="lf-color" name="color">
+              <option value="" selected disabled>Select a color</option>
+              <option value="Black">Black</option>
+              <option value="White">White</option>
+              <option value="Gray">Gray</option>
+              <option value="Blue">Blue</option>
+              <option value="Red">Red</option>
+              <option value="Green">Green</option>
+              <option value="Yellow">Yellow</option>
+              <option value="Brown">Brown</option>
+              <option value="Beige">Beige</option>
+              <option value="Pink">Pink</option>
+              <option value="Purple">Purple</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="lf-field">
+          <label for="lf-season">Season</label>
+          <select id="lf-season" name="season">
+            <option value="" selected disabled>Select a season</option>
+            <option value="Spring">Spring</option>
+            <option value="Summer">Summer</option>
+            <option value="Fall">Fall</option>
+            <option value="Winter">Winter</option>
+            <option value="All Season">All Season</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="lf-photo-column">
+        <label class="lf-photo-label" for="lf-photo">Photo</label>
+        <label class="lf-upload-zone" id="lf-upload-zone" for="lf-photo">
+          <input class="lf-visually-hidden" id="lf-photo" name="photo"
+                 type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+          <span class="lf-upload-content">
+            <svg class="lf-image-icon" viewBox="0 0 64 64" fill="none"
+                 stroke="currentColor" stroke-width="3" aria-hidden="true">
+              <rect x="7" y="8" width="50" height="48" rx="5"></rect>
+              <circle cx="43" cy="23" r="5" fill="currentColor" stroke="none"></circle>
+              <path d="M11 48l15-17 10 11 7-7 11 13"></path>
+            </svg>
+            <span class="lf-upload-primary">Click to upload a photo</span>
+            <span class="lf-upload-secondary">or drag and drop</span>
+            <span class="lf-upload-details">JPG, PNG (Max 5MB)</span>
+          </span>
+        </label>
+        <p class="lf-file-message" id="lf-file-message" role="alert" hidden></p>
+
+        <div class="lf-preview-section">
+          <span class="lf-preview-label">Preview</span>
+          <div class="lf-preview-frame">
+            <svg class="lf-image-icon" id="lf-preview-placeholder" viewBox="0 0 64 64"
+                 fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+              <rect x="7" y="8" width="50" height="48" rx="5"></rect>
+              <circle cx="43" cy="23" r="5" fill="currentColor" stroke="none"></circle>
+              <path d="M11 48l15-17 10 11 7-7 11 13"></path>
+            </svg>
+            <img id="lf-photo-preview" alt="Selected clothing photo preview" hidden>
+          </div>
+          <p class="lf-preview-name" id="lf-preview-name" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lf-actions">
+      <a class="lf-action lf-cancel" href="{{ url_for('closet.index') }}">Cancel</a>
+      <button class="lf-action lf-save" type="submit">Save Item</button>
+    </div>
+    <p class="lf-demo-notice">Layout preview only. Saving items will be implemented in Progress Report #2.</p>
+    <p class="lf-form-status" id="lf-form-status" role="status" hidden></p>
+  </form>
+</section>
+
+<script>
+  (function () {
+    const form = document.getElementById('lf-add-form');
+    const input = document.getElementById('lf-photo');
+    const dropZone = document.getElementById('lf-upload-zone');
+    const preview = document.getElementById('lf-photo-preview');
+    const placeholder = document.getElementById('lf-preview-placeholder');
+    const previewName = document.getElementById('lf-preview-name');
+    const fileMessage = document.getElementById('lf-file-message');
+    const formStatus = document.getElementById('lf-form-status');
+    let previewUrl = null;
+
+    function clearPreview() {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = null;
+      }
+      preview.removeAttribute('src');
+      preview.hidden = true;
+      placeholder.hidden = false;
+      previewName.textContent = '';
+      previewName.hidden = true;
+    }
+
+    function showPreview(file) {
+      fileMessage.hidden = true;
+      fileMessage.textContent = '';
+      clearPreview();
+
+      if (!file) return;
+
+      const allowed = ['image/jpeg', 'image/png'];
+      if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) {
+        fileMessage.textContent = 'Please choose a JPG or PNG image under 5MB.';
+        fileMessage.hidden = false;
+        input.value = '';
+        return;
+      }
+
+      previewUrl = URL.createObjectURL(file);
+      preview.src = previewUrl;
+      preview.hidden = false;
+      placeholder.hidden = true;
+      previewName.textContent = file.name;
+      previewName.hidden = false;
+    }
+
+    input.addEventListener('change', function () {
+      showPreview(input.files[0]);
+    });
+
+    ['dragenter', 'dragover'].forEach(function (eventName) {
+      dropZone.addEventListener(eventName, function (event) {
+        event.preventDefault();
+        dropZone.classList.add('is-dragging');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(function (eventName) {
+      dropZone.addEventListener(eventName, function (event) {
+        event.preventDefault();
+        dropZone.classList.remove('is-dragging');
+      });
+    });
+
+    dropZone.addEventListener('drop', function (event) {
+      const file = event.dataTransfer && event.dataTransfer.files[0];
+      if (!file) return;
+      try {
+        const transfer = new DataTransfer();
+        transfer.items.add(file);
+        input.files = transfer.files;
+      } catch (error) {
+        /* Preview still works in browsers that cannot assign a FileList. */
+      }
+      showPreview(file);
+    });
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      formStatus.textContent = 'This is the Progress Report #1 page demo. Saving clothing to SQLite will be implemented in Progress Report #2.';
+      formStatus.hidden = false;
+    });
+
+    window.addEventListener('pagehide', function () {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    });
+  }());
+</script>
 {% endblock %}
