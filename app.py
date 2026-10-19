@@ -14,6 +14,11 @@ def create_app():
     """Create the app and register its three feature blueprints."""
     app = Flask(__name__, instance_relative_config=True)
     app.config["DATABASE"] = str(Path(app.instance_path) / "lookforge.db")
+
+    upload_folder = Path(app.root_path) / "static" / "uploads"
+    upload_folder.mkdir(parents=True, exist_ok=True)
+    app.config["UPLOAD_FOLDER"] = str(upload_folder)
+
     init_database(app)
 
     app.register_blueprint(closet_bp)
