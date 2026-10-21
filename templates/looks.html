@@ -2,5 +2,18 @@
 {% block title %}My Looks{% endblock %}
 {% block content %}
 <h1>My Looks</h1>
-<p>Page placeholder — outfit features will be added later.</p>
+<p>View and manage your saved outfit looks.</p>
+<a href="#">+ Create Look</a>
+
+{% for card in look_cards %}
+  <div>
+    <h2>{{ card.look.name }}</h2>
+    {% for item in card['items'] %}
+      <p>{{ item.name }}</p>
+    {% endfor %}
+    <p>{{ card.look.occasion }} | {{ card.look.season }} | {{ card.look.weather }}</p>
+  </div>
+{% else %}
+  <p>No Looks yet.</p>
+{% endfor %}
 {% endblock %}
