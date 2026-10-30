@@ -6,10 +6,13 @@ from db import get_db
 
 looks_bp = Blueprint("looks", __name__)
 
+OCCASIONS = ["Casual", "Formal", "Everyday", "Work", "Party", "Date Night", "Workout", "Travel"]
+SEASONS = ["Spring", "Summer", "Fall", "Winter", "All Season"]
+WEATHERS = ["Mild Weather", "Cool Weather", "Warm Weather", "Rainy", "Cold", "Snowy", "Hot"]
+
 
 @looks_bp.get("/looks")
 def index():
-    """Show the placeholder My Looks page."""
     """Show all saved Looks."""
 
     db = get_db()
@@ -31,3 +34,21 @@ def index():
         look_cards.append({"look": look, "items": items})
 
     return render_template("looks.html", look_cards=look_cards)
+
+
+@looks_bp.get("/looks/new")
+
+def new():
+    """Show the Create Look form."""
+    db = get_db()
+
+    # get all the clothing so the user can pick items for the look
+    clothing = db.execute("SELECT * FROM clothing ORDER BY category, name").fetchall()
+
+    return render_template(
+        "look_form.html",
+        clothing=clothing,
+        occasions=OCCASIONS,
+        seasons=SEASONS,
+        weathers=WEATHERS,
+    )

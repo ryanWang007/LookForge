@@ -3,7 +3,7 @@
 {% block content %}
 <h1>My Looks</h1>
 <p>View and manage your saved outfit looks.</p>
-<a href="#">+ Create Look</a>
+<a href="{{ url_for('looks.new') }}">+ Create Look</a>
 
 {% for card in look_cards %}
   <div>

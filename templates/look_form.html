@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Create Look{% endblock %}
+{% block content %}
+<h1>Create Look</h1>
+<p>Pick clothing items and add tags for your outfit.</p>
+
+<form method="post" action="#">
+  <p>
+    <label for="name">Look Name</label><br>
+    <input type="text" id="name" name="name" placeholder="e.g. Casual Spring">
+  </p>
+
+  <p>
+    <label for="occasion">Occasion</label><br>
+    <select id="occasion" name="occasion">
+      <option value="">Select an occasion</option>
+      {% for o in occasions %}
+        <option value="{{ o }}">{{ o }}</option>
+      {% endfor %}
+    </select>
+  </p>
+
+  <p>
+    <label for="season">Season</label><br>
+    <select id="season" name="season">
+      <option value="">Select a season</option>
+      {% for s in seasons %}
+        <option value="{{ s }}">{{ s }}</option>
+      {% endfor %}
+    </select>
+  </p>
+
+  <p>
+    <label for="weather">Weather</label><br>
+    <select id="weather" name="weather">
+      <option value="">Select weather</option>
+      {% for w in weathers %}
+        <option value="{{ w }}">{{ w }}</option>
+      {% endfor %}
+    </select>
+  </p>
+
+  <h2>Clothing</h2>
+  {% for item in clothing %}
+    <label>
+      <input type="checkbox" name="clothing_ids" value="{{ item.id }}">
+      {{ item.name }} ({{ item.category }}, {{ item.color }})
+    </label><br>
+  {% else %}
+    <p>No clothing yet. Add some in Add Clothing first.</p>
+  {% endfor %}
+
+  <p>
+    <a href="{{ url_for('looks.index') }}">Cancel</a>
+    <button type="submit">Save Look</button>
+  </p>
+</form>
+{% endblock %}
