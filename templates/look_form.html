@@ -4,7 +4,7 @@
 <h1>Create Look</h1>
 <p>Pick clothing items and add tags for your outfit.</p>
 
-<form method="post" action="#">
+<form method="post" action="{{ url_for('looks.create') }}">
   <p>
     <label for="name">Look Name</label><br>
     <input type="text" id="name" name="name" placeholder="e.g. Casual Spring">
