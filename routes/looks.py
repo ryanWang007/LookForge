@@ -1,6 +1,6 @@
 """My Looks routes. Outfit-building logic will be added here."""
 
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, request, url_for
 
 from db import get_db
 
@@ -52,3 +52,21 @@ def new():
         seasons=SEASONS,
         weathers=WEATHERS,
     )
+
+@looks_bp.post("/looks")
+def create():
+    """Save a new Look."""
+    db = get_db()
+
+    name = request.form.get("name", "").strip()
+    occasion = request.form.get("occasion", "")
+    season = request.form.get("season", "")
+    weather = request.form.get("weather", "")
+
+    db.execute(
+        "INSERT INTO looks (name, occasion, season, weather) VALUES (?, ?, ?, ?)",
+        (name, occasion or None, season or None, weather or None),
+    )
+    db.commit()
+
+    return redirect(url_for("looks.index"))
