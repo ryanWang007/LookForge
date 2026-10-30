@@ -57,7 +57,7 @@
 
 <section class="closet-page">
   <h1 id="closet-title">My Closet</h1>
-  <p class="subtitle">View and manage the clothes in your closet.</p>
+  <p class="subtitle">View the clothes in your closet.</p>
 
   <!-- Search and filter form -->
   <form class="closet-toolbar" action="{{ url_for('closet.index') }}" method="get">
@@ -103,26 +103,42 @@
   </form>
     
     <!-- Clothing grid -->
+    {% if clothing_items %}
     <div class="clothing-grid">
-        <article class="clothing-card">
-          <div class="clothing-photo">
-              <span class="photo-placeholder" aria-hidden="true">▧</span>
-          </div>
+      {% for item in clothing_items %}
+      <article class="clothing-card">
+        <div class="clothing-photo">
+          {% if item["photo_filename"] %}
+          <img
+            src="{{ url_for('static', filename='uploads/' ~ item['photo_filename']) }}"
+            alt="{{ item['name'] }}"
+          >
+          {% else %}
+          <span class="photo-placeholder" aria-hidden="true">▧</span>
+          {% endif %}
+        </div>
 
-          <h2>Clothing Item</h2>
-          <div class="clothing-tags">
-              <span class="clothing-tag tag-category">Category</span>
-              <span class="clothing-tag tag-season">Season</span>
-              <span class="clothing-tag tag-color">Color</span>
-          </div>
-        </article>
+        <h2>{{ item["name"] }}</h2>
+        <div class="clothing-tags">
+          {% if item["category"] %}
+          <span class="clothing-tag tag-category">{{ item["category"] }}</span>
+          {% endif %}
+          {% if item["season"] %}
+          <span class="clothing-tag tag-season{% if item['season'] == 'All Season' %} tag-all-season{% endif %}">{{ item["season"] }}</span>
+          {% endif %}
+          {% if item["color"] %}
+          <span class="clothing-tag tag-color">{{ item["color"] }}</span>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
     </div>
-
-    <!-- Empty closet message -->
+    {% else %}
     <div class="closet-empty">
       <h2>Your closet is empty</h2>
       <p>Add clothing to see your items here.</p>
     </div>
+    {% endif %}
 
 </section>
 {% endblock %}
