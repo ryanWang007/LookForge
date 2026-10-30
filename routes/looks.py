@@ -54,6 +54,7 @@ def new():
     )
 
 @looks_bp.post("/looks")
+
 def create():
     """Save a new Look."""
     db = get_db()
