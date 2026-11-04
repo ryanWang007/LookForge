@@ -6,6 +6,10 @@ from db import get_db
 
 closet_bp = Blueprint("closet", __name__)
 
+CATEGORIES = ["Shirts", "Pants", "Dresses", "Jackets", "Shoes", "Other"]
+SEASONS = ["Spring", "Summer", "Fall", "Winter"]
+COLORS = ["Black", "White", "Gray", "Blue", "Red", "Green", "Brown", "Other"]
+
 
 @closet_bp.get("/closet")
 def index():
@@ -14,4 +18,10 @@ def index():
         "SELECT id, name, category, color, season, photo_filename "
         "FROM clothing ORDER BY created_at DESC, id DESC"
     ).fetchall()
-    return render_template("closet.html", clothing_items=clothing_items)
+    return render_template(
+        "closet.html",
+        clothing_items=clothing_items,
+        categories=CATEGORIES,
+        seasons=SEASONS,
+        colors=COLORS,
+    )

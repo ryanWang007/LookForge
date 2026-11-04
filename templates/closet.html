@@ -69,34 +69,25 @@
     <!-- Category dropdown -->
     <select id="category" name="category">
       <option value="">All Categories</option>
-      <option value="Shirts">Shirts</option>
-      <option value="Pants">Pants</option>
-      <option value="Dresses">Dresses</option>
-      <option value="Jacket">Jacket</option>
-      <option value="Shoes">Shoes</option>
-      <option value="Other">Other</option>
+      {% for category in categories %}
+      <option value="{{ category }}">{{ category }}</option>
+      {% endfor %}
     </select>
 
     <!-- Season dropdown -->
     <select id="season" name="season">
       <option value="">All Seasons</option>
-      <option value="Spring">Spring</option>
-      <option value="Summer">Summer</option>
-      <option value="Fall">Fall</option>
-      <option value="Winter">Winter</option>
+      {% for season_option in seasons %}
+      <option value="{{ season_option }}">{{ season_option }}</option>
+      {% endfor %}
     </select>
     
     <!-- Color dropdown -->
     <select id="color" name="color">
       <option value="">All Colors</option>
-      <option value="Black">Black</option>
-      <option value="White">White</option>
-      <option value="Gray">Gray</option>
-      <option value="Blue">Blue</option>
-      <option value="Red">Red</option>
-      <option value="Green">Green</option>
-      <option value="Brown">Brown</option>
-      <option value="Other">Other</option>
+      {% for color_option in colors %}
+      <option value="{{ color_option }}">{{ color_option }}</option>
+      {% endfor %}
     </select>
 
     <a class="add-clothing" href="{{ url_for('add_clothing.index') }}"><span aria-hidden="true">+</span> Add Clothing</a>
@@ -112,6 +103,7 @@
           <img
             src="{{ url_for('static', filename='uploads/' ~ item['photo_filename']) }}"
             alt="{{ item['name'] }}"
+            loading="lazy"
           >
           {% else %}
           <span class="photo-placeholder" aria-hidden="true">▧</span>
