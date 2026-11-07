@@ -1,5 +1,3 @@
-"""My Looks routes. Outfit-building logic will be added here."""
-
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from db import get_db
