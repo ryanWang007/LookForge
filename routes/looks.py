@@ -61,11 +61,26 @@ def create():
     occasion = request.form.get("occasion", "")
     season = request.form.get("season", "")
     weather = request.form.get("weather", "")
+    clothing_ids = request.form.getlist("clothing_ids")
 
-    db.execute(
+
+    # don't save a look with no name
+    if not name:
+        return redirect(url_for("looks.new"))
+
+    cur = db.execute(
         "INSERT INTO looks (name, occasion, season, weather) VALUES (?, ?, ?, ?)",
         (name, occasion or None, season or None, weather or None),
     )
+    look_id = cur.lastrowid
+
+
+    for cid in clothing_ids:
+        db.execute(
+            "INSERT OR IGNORE INTO look_items (look_id, clothing_id) VALUES (?, ?)",
+            (look_id, cid),
+        )
+
     db.commit()
 
     return redirect(url_for("looks.index"))
