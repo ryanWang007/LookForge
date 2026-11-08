@@ -2,10 +2,14 @@
 {% block title %}My Looks{% endblock %}
 {% block content %}
 <style>
-  /* styling stays in this page, same as closet.html */
   .looks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
   .look-card { padding: 16px 20px; border: 1px solid #ccd5e2; border-radius: 8px; }
   .look-card h2 { margin-top: 0; }
+  .look-photos { display: flex; flex-wrap: wrap; gap: 8px; }
+  .look-photo { width: 80px; text-align: center; font-size: 12px; }
+  .look-photo-box { display: flex; align-items: center; justify-content: center; width: 80px; height: 90px; overflow: hidden; border-radius: 5px; background: #f0f2f6; color: #8792a2; font-size: 28px; }
+  .look-photo-box img { width: 100%; height: 100%; object-fit: contain; }
+  .look-photo p { margin: 4px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 
 <h1>My Looks</h1>
@@ -17,15 +21,28 @@
     <article class="look-card">
       <h2>{{ card.look.name }}</h2>
 
-      <ul>
+      <div class="look-photos">
         {% for item in card['items'] %}
-          <li>{{ item.name }}</li>
+          <div class="look-photo">
+            <div class="look-photo-box">
+              {% if item["photo_filename"] %}
+                <img
+                  src="{{ url_for('static', filename='uploads/' ~ item['photo_filename']) }}"
+                  alt="{{ item['name'] }}"
+                  loading="lazy"
+                >
+              {% else %}
+                <span aria-hidden="true">▧</span>
+              {% endif %}
+            </div>
+            <p>{{ item["name"] }}</p>
+          </div>
         {% else %}
-          <li>No items in this look.</li>
+          <p>No items in this look.</p>
         {% endfor %}
-      </ul>
+      </div>
 
-      <p>{{ card.look.occasion }} | {{ card.look.season }} | {{ card.look.weather }}</p>
+      <p>{{ card.look.occasion or '—' }} | {{ card.look.season or '—' }} | {{ card.look.weather or '—' }}</p>
     </article>
   {% endfor %}
 </div>
