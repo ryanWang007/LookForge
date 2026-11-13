@@ -13,9 +13,11 @@ WEATHERS = ["Mild Weather", "Cool Weather", "Warm Weather", "Rainy", "Cold", "Sn
 def get_clothing(db):
     return db.execute("SELECT * FROM clothing ORDER BY category, name").fetchall()
 
-def render_form(db, errors=None, form=None, status=200):
-    """Render the Create Look form, optionally with errors and old input."""
+def render_form(db, errors=None, form=None, status=200, look_id=None, selected_ids=None):
+    """Render the Look form (create, or edit when look_id is given)."""
     form = form or {}
+    if selected_ids is None:
+        selected_ids = set(form.getlist("clothing_ids")) if form else set()
     return render_template(
         "look_form.html",
         clothing=get_clothing(db),
@@ -24,8 +26,8 @@ def render_form(db, errors=None, form=None, status=200):
         weathers=WEATHERS,
         errors=errors or [],
         form=form,
-        # strings, to match what the browser posts back
-        selected_ids=set(form.getlist("clothing_ids")) if form else set(),
+        selected_ids=selected_ids,
+        look_id=look_id,
     ), status
 
 def validate_look(db, form):
@@ -151,3 +153,53 @@ def delete(look_id):
 
     return redirect(url_for("looks.index"))
 
+@looks_bp.get("/looks/<int:look_id>/edit")
+def edit(look_id):
+    """Show the form filled in with an existing Look."""
+    db = get_db()
+
+    look = db.execute("SELECT * FROM looks WHERE id = ?", (look_id,)).fetchone()
+    if look is None:
+        abort(404)
+
+    rows = db.execute(
+        "SELECT clothing_id FROM look_items WHERE look_id = ?", (look_id,)
+    ).fetchall()
+    selected_ids = {str(r["clothing_id"]) for r in rows}
+
+    return render_form(db, form=dict(look), look_id=look_id, selected_ids=selected_ids)
+
+@looks_bp.post("/looks/<int:look_id>/edit")
+def update(look_id):
+    """Validate and save changes to an existing Look and its items."""
+    db = get_db()
+
+    exists = db.execute("SELECT id FROM looks WHERE id = ?", (look_id,)).fetchone()
+    if exists is None:
+        abort(404)
+
+    errors, item_ids = validate_look(db, request.form)
+    if errors:
+        return render_form(db, errors, request.form, 400, look_id=look_id)
+
+    name = request.form["name"].strip()
+    occasion = request.form.get("occasion") or None
+    season = request.form.get("season") or None
+    weather = request.form.get("weather") or None
+
+    try:
+        db.execute(
+            "UPDATE looks SET name = ?, occasion = ?, season = ?, weather = ? WHERE id = ?",
+            (name, occasion, season, weather, look_id),
+        )
+        db.execute("DELETE FROM look_items WHERE look_id = ?", (look_id,))
+        db.executemany(
+            "INSERT INTO look_items (look_id, clothing_id) VALUES (?, ?)",
+            [(look_id, cid) for cid in item_ids],
+        )
+        db.commit()
+    except sqlite3.Error:
+        db.rollback()
+        raise
+
+    return redirect(url_for("looks.index"))

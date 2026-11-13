@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Create Look{% endblock %}
+{% block title %}{{ 'Edit Look' if look_id else 'Create Look' }}{% endblock %}
 {% block content %}
-<h1>Create Look</h1>
+<h1>{{ 'Edit Look' if look_id else 'Create Look' }}</h1>
 <p>Pick clothing items and add tags for your outfit.</p>
 {% for e in errors %}
   <p style="color: red">{{ e }}</p>
 {% endfor %}
-<form method="post" action="{{ url_for('looks.create') }}">
+<form method="post"
+      action="{% if look_id %}{{ url_for('looks.update', look_id=look_id) }}{% else %}{{ url_for('looks.create') }}{% endif %}">
   <p>
     <label for="name">Look Name</label><br>
     <input type="text" id="name" name="name" placeholder="e.g. Casual Spring"
