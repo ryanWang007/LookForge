@@ -13,7 +13,6 @@
     <input type="text" id="name" name="name" placeholder="e.g. Casual Spring"
            value="{{ form.get('name', '') }}" required>
   </p>
-
   <p>
     <label for="occasion">Occasion</label><br>
     <select id="occasion" name="occasion">
@@ -23,7 +22,6 @@
       {% endfor %}
     </select>
   </p>
-
   <p>
     <label for="season">Season</label><br>
     <select id="season" name="season">
@@ -33,7 +31,6 @@
       {% endfor %}
     </select>
   </p>
-
   <p>
     <label for="weather">Weather</label><br>
     <select id="weather" name="weather">
@@ -43,7 +40,6 @@
       {% endfor %}
     </select>
   </p>
-
   <h2>Clothing</h2>
   {% for item in clothing %}
     <label>
@@ -53,10 +49,11 @@
   {% else %}
     <p>No clothing yet. Add some in Add Clothing first.</p>
   {% endfor %}
-
   <p>
     <a href="{{ url_for('looks.index') }}">Cancel</a>
-    <button type="submit">Save Look</button>
+    {% if clothing %}
+      <button type="submit">Save Look</button>
+    {% endif %}
   </p>
 </form>
 {% endblock %}
