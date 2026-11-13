@@ -3,11 +3,14 @@
 {% block content %}
 <h1>Create Look</h1>
 <p>Pick clothing items and add tags for your outfit.</p>
-
+{% for e in errors %}
+  <p style="color: red">{{ e }}</p>
+{% endfor %}
 <form method="post" action="{{ url_for('looks.create') }}">
   <p>
     <label for="name">Look Name</label><br>
-    <input type="text" id="name" name="name" placeholder="e.g. Casual Spring" required>
+    <input type="text" id="name" name="name" placeholder="e.g. Casual Spring"
+           value="{{ form.get('name', '') }}" required>
   </p>
 
   <p>
@@ -15,7 +18,7 @@
     <select id="occasion" name="occasion">
       <option value="">Select an occasion</option>
       {% for o in occasions %}
-        <option value="{{ o }}">{{ o }}</option>
+          <option value="{{ o }}" {{ 'selected' if form.get('occasion') == o }}>{{ o }}</option>
       {% endfor %}
     </select>
   </p>
@@ -25,7 +28,7 @@
     <select id="season" name="season">
       <option value="">Select a season</option>
       {% for s in seasons %}
-        <option value="{{ s }}">{{ s }}</option>
+         <option value="{{ s }}" {{ 'selected' if form.get('season') == s }}>{{ s }}</option>
       {% endfor %}
     </select>
   </p>
@@ -35,7 +38,7 @@
     <select id="weather" name="weather">
       <option value="">Select weather</option>
       {% for w in weathers %}
-        <option value="{{ w }}">{{ w }}</option>
+          <option value="{{ w }}" {{ 'selected' if form.get('weather') == w }}>{{ w }}</option>
       {% endfor %}
     </select>
   </p>
@@ -43,8 +46,8 @@
   <h2>Clothing</h2>
   {% for item in clothing %}
     <label>
-      <input type="checkbox" name="clothing_ids" value="{{ item.id }}">
-      {{ item.name }} ({{ item.category }}, {{ item.color }})
+      <input type="checkbox" name="clothing_ids" value="{{ item.id }}" {{ 'checked' if item.id|string in selected_ids }}>
+      {{ item.name }} ({{ item.category }}, {{ item.color or 'no color' }})
     </label><br>
   {% else %}
     <p>No clothing yet. Add some in Add Clothing first.</p>
