@@ -43,6 +43,10 @@
       </div>
 
       <p>{{ card.look.occasion or '—' }} | {{ card.look.season or '—' }} | {{ card.look.weather or '—' }}</p>
+      <form method="post" action="{{ url_for('looks.delete', look_id=card.look.id) }}"
+            onsubmit="return confirm('Delete this look?');">
+        <button type="submit">Delete</button>
+      </form>
     </article>
   {% endfor %}
 </div>

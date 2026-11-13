@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, abort, redirect, render_template, request, url_for
 
 from db import get_db
 
@@ -86,6 +86,7 @@ def index():
             row["look_id"],
             {
                 "look": {
+                    "id": row["look_id"],
                     "name": row["look_name"],
                     "occasion": row["occasion"],
                     "season": row["season"],
@@ -105,8 +106,6 @@ def index():
 def new():
     """Show the Create Look form."""
     return render_form(get_db())
-
-@looks_bp.post("/looks")
 
 @looks_bp.post("/looks")
 def create():
@@ -138,3 +137,17 @@ def create():
         raise
 
     return redirect(url_for("looks.index"))
+
+@looks_bp.post("/looks/<int:look_id>/delete")
+def delete(look_id):
+    """Delete a Look. ON DELETE CASCADE removes its look_items rows."""
+    db = get_db()
+
+    cur = db.execute("DELETE FROM looks WHERE id = ?", (look_id,))
+    db.commit()
+
+    if cur.rowcount == 0:
+        abort(404)
+
+    return redirect(url_for("looks.index"))
+
