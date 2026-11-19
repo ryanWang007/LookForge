@@ -26,7 +26,12 @@
   .clothing-photo { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1 / 1.12; overflow: hidden; border-radius: 5px; background: #f0f2f6; }
   .clothing-photo img { width: 100%; height: 100%; object-fit: contain; }
   .photo-placeholder { color: #8792a2; font-size: 42px; }
-  .clothing-card h2 { margin: 14px 6px 11px; overflow: hidden; font-size: 17px; text-overflow: ellipsis; white-space: nowrap; }
+  .clothing-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px 2px 4px 6px; }
+  .clothing-card h2 { min-width: 0; margin: 0; overflow: hidden; font-size: 17px; text-overflow: ellipsis; white-space: nowrap; }
+  .delete-item-button { display: inline-flex; flex: 0 0 36px; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #738093; cursor: pointer; }
+  .delete-item-button:hover { border-color: #fecaca; background: #fff1f2; color: #c62828; }
+  .delete-item-button:focus-visible, .delete-dialog button:focus-visible { outline: 2px solid #9bbdf4; outline-offset: 2px; }
+  .delete-item-button svg { width: 18px; height: 18px; }
   .clothing-tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 6px 6px; }
   .clothing-tag { padding: 5px 10px; border-radius: 9px; background: #edf1f6; color: #475467; font-size: 13px; }
   .tag-category { background: #e2edff; color: #1559c7; }
@@ -36,6 +41,15 @@
   .closet-empty { padding: 46px 20px; border: 1px dashed #cbd5e1; border-radius: 9px; color: #5b6678; text-align: center; }
   .closet-empty h2 { margin: 0 0 8px; color: #253247; font-size: 20px; }
   .closet-empty p { margin: 0; }
+  .delete-error { margin: 0 0 20px; padding: 12px 16px; border: 1px solid #fecaca; border-radius: 8px; background: #fff1f2; color: #a61f1f; }
+  .delete-dialog { width: min(440px, calc(100% - 32px)); padding: 28px; border: 1px solid #e1e6ee; border-radius: 12px; color: #182230; box-shadow: 0 20px 60px rgb(16 24 40 / 22%); }
+  .delete-dialog::backdrop { background: rgb(16 24 40 / 48%); }
+  .delete-dialog h2 { margin: 0 0 10px; font-size: 22px; }
+  .delete-dialog p { margin: 0; color: #5b6678; line-height: 1.5; }
+  .delete-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; }
+  .delete-dialog-actions button { min-height: 42px; padding: 0 16px; border: 1px solid #ccd5e2; border-radius: 7px; background: white; color: #344054; font: inherit; font-weight: 600; cursor: pointer; }
+  .delete-dialog-actions .confirm-delete { border-color: #c62828; background: #c62828; color: white; }
+  .delete-dialog-actions .confirm-delete:hover { border-color: #a61f1f; background: #a61f1f; }
   @media (max-width: 900px) {
     .clothing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
@@ -58,6 +72,9 @@
 <section class="closet-page">
   <h1 id="closet-title">My Closet</h1>
   <p class="subtitle">View the clothes in your closet.</p>
+  {% if request.args.get("photo_cleanup_error") %}
+  <p class="delete-error" role="alert">The clothing item was deleted, but its photo could not be removed.</p>
+  {% endif %}
 
   <!-- Search and filter form -->
   <form class="closet-toolbar" action="{{ url_for('closet.index') }}" method="get">
@@ -110,7 +127,23 @@
           {% endif %}
         </div>
 
-        <h2>{{ item["name"] }}</h2>
+        <div class="clothing-card-heading">
+          <h2>{{ item["name"] }}</h2>
+          <button
+            class="delete-item-button"
+            type="button"
+            aria-label="Delete {{ item['name'] }}"
+            data-item-name="{{ item['name'] }}"
+            data-delete-url="{{ url_for('closet.delete_item', item_id=item['id']) }}"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18"></path>
+              <path d="M8 6V4h8v2"></path>
+              <path d="m19 6-1 14H6L5 6"></path>
+              <path d="M10 11v5M14 11v5"></path>
+            </svg>
+          </button>
+        </div>
         <div class="clothing-tags">
           {% if item["category"] %}
           <span class="clothing-tag tag-category">{{ item["category"] }}</span>
@@ -133,4 +166,31 @@
     {% endif %}
 
 </section>
+
+<dialog class="delete-dialog" id="delete-dialog" aria-labelledby="delete-dialog-title">
+  <h2 id="delete-dialog-title">Delete clothing item?</h2>
+  <p>Are you sure you would like to delete <strong id="delete-item-name"></strong>?</p>
+  <form class="delete-dialog-actions" id="delete-item-form" method="post">
+    <button type="button" data-close-delete-dialog>Cancel</button>
+    <button class="confirm-delete" type="submit">Delete</button>
+  </form>
+</dialog>
+
+<script>
+  const deleteDialog = document.getElementById('delete-dialog');
+  const deleteItemName = document.getElementById('delete-item-name');
+  const deleteItemForm = document.getElementById('delete-item-form');
+
+  document.querySelectorAll('.delete-item-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      deleteItemName.textContent = button.dataset.itemName;
+      deleteItemForm.action = button.dataset.deleteUrl;
+      deleteDialog.showModal();
+    });
+  });
+
+  deleteDialog.querySelectorAll('[data-close-delete-dialog]').forEach((button) => {
+    button.addEventListener('click', () => deleteDialog.close());
+  });
+</script>
 {% endblock %}
