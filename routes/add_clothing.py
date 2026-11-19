@@ -10,7 +10,7 @@ from db import get_db
 
 add_clothing_bp = Blueprint("add_clothing", __name__)
 
-CATEGORIES = {"Shirts", "Pants", "Dresses", "Jacket", "Shoes", "others"}
+CATEGORIES = {"Shirts", "Pants", "Dresses", "Jackets", "Shoes", "Other"}
 COLORS = {"Black", "White", "Gray", "Blue", "Red", "Green", "Brown", "Other"}
 SEASONS = {"Spring", "Summer", "Fall", "Winter", "All Season"}
 MAX_PHOTO_SIZE = 5 * 1024 * 1024
