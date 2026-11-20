@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS clothing (
 CREATE TABLE IF NOT EXISTS looks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    occasion TEXT,
+    season TEXT,
+    weather TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
