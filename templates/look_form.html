@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Look' if look_id else 'Create Look' }}{% endblock %}
+{% block content %}
+<style>
+  .content { max-width: 1296px; margin: 36px auto; padding: 0 28px; }
+  .site-header .brand { font-size: 2rem; }
+  .site-header nav a[href$="/looks"] { color: #1559c7; font-weight: bold; border-bottom: 3px solid #1559c7; }
+  .look-form-page { color: #182230; }
+  .look-form-page * { box-sizing: border-box; }
+  .look-form-page h1 { font-size: 42px; margin: 0 0 4px; }
+  .subtitle { font-size: 22px; color: #5b6678; margin: 0 0 32px; }
+
+  .form-card { display: grid; grid-template-columns: 2fr 3fr; gap: 32px; padding: 32px 36px; background: white; border: 1px solid #d7dee8; border-radius: 9px; }
+  .fields { display: grid; align-content: start; gap: 30px; }
+  .field label, .section-title { display: block; font-size: 18px; font-weight: bold; margin-bottom: 12px; }
+  .field input[type="text"], .field select { width: 100%; height: 60px; padding: 0 17px; border: 1px solid #ccd5e2; border-radius: 9px; background: white; color: #526073; font: inherit; font-size: 17px; }
+  .field input:focus, .field select:focus { outline: 2px solid #9bbdf4; }
+
+  .picker { border-left: 1px solid #dce2eb; padding-left: 32px; }
+  .picker-hint { margin: -6px 0 14px; color: #738093; font-size: 15px; }
+  .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; max-height: 480px; padding: 4px; overflow-y: auto; }
+  .pick { position: relative; display: block; cursor: pointer; }
+  .pick input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .pick-card { position: relative; padding: 6px; border: 2px solid #dce2eb; border-radius: 8px; background: white; }
+  .pick:hover .pick-card { border-color: #9bbdf4; }
+  .pick input:checked + .pick-card { border-color: #1559c7; background: #f4f8ff; }
+  .pick input:focus-visible + .pick-card { outline: 2px solid #9bbdf4; outline-offset: 2px; }
+  .pick-card::after { content: "✓"; position: absolute; top: 10px; right: 10px; display: none; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #1559c7; color: white; font-size: 14px; }
+  .pick input:checked + .pick-card::after { display: flex; }
+  .pick-photo { display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1.1; overflow: hidden; border-radius: 5px; background: #f0f2f6; color: #8792a2; font-size: 36px; }
+  .pick-photo img { width: 100%; height: 100%; object-fit: contain; }
+  .pick-name { margin: 8px 4px 2px; overflow: hidden; font-size: 15px; font-weight: bold; text-overflow: ellipsis; white-space: nowrap; }
+  .pick-meta { margin: 0 4px 4px; overflow: hidden; color: #738093; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+
+  .closet-empty { padding: 46px 20px; border: 1px dashed #cbd5e1; border-radius: 9px; color: #5b6678; text-align: center; }
+  .closet-empty h2 { margin: 0 0 8px; color: #253247; font-size: 20px; }
+  .closet-empty p { margin: 0; }
+  .closet-empty a { color: #1559c7; }
+
+  .form-message { padding: 12px 16px; margin: 0 0 16px; border-radius: 8px; }
+  .form-message.error { background: #fff4f4; border: 1px solid #f4b3b3; color: #992222; }
+
+  .actions { display: flex; justify-content: flex-end; gap: 18px; margin-top: 28px; }
+  .actions a, .actions button { min-width: 145px; padding: 17px 22px; border-radius: 8px; text-align: center; font: inherit; font-size: 17px; text-decoration: none; cursor: pointer; }
+  .cancel { border: 1px solid #cfd7e3; background: white; color: #526073; }
+  .save { border: 1px solid #1559c7; background: #1559c7; color: white; }
+  .save:hover { background: #104ba9; }
+
+  @media (max-width: 800px) {
+    .form-card { grid-template-columns: 1fr; }
+    .picker { border-left: 0; border-top: 1px solid #dce2eb; padding: 26px 0 0; }
+  }
+  @media (max-width: 500px) {
+    .content { padding: 0 16px; }
+    .form-card { padding: 22px; }
+    .look-form-page h1 { font-size: 34px; }
+    .subtitle { font-size: 19px; }
+  }
+</style>
+
+<section class="look-form-page">
+  <h1>{{ 'Edit Look' if look_id else 'Create Look' }}</h1>
+  <p class="subtitle">Pick clothing items and add tags for your outfit.</p>
+
+  {% for e in errors %}
+    <p class="form-message error" role="alert">{{ e }}</p>
+  {% endfor %}
+
+  <form method="post"
+        action="{% if look_id %}{{ url_for('looks.update', look_id=look_id) }}{% else %}{{ url_for('looks.create') }}{% endif %}">
+    <div class="form-card">
+      <div class="fields">
+        <div class="field">
+          <label for="name">Look Name</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Casual Spring"
+                 value="{{ form.get('name', '') }}" required maxlength="100">
+        </div>
+
+        <div class="field">
+          <label for="occasion">Occasion</label>
+          <select id="occasion" name="occasion">
+            <option value="">Select an occasion</option>
+            {% for o in occasions %}
+            <option value="{{ o }}" {{ 'selected' if form.get('occasion') == o }}>{{ o }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="season">Season</label>
+          <select id="season" name="season">
+            <option value="">Select a season</option>
+            {% for s in seasons %}
+            <option value="{{ s }}" {{ 'selected' if form.get('season') == s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="weather">Weather</label>
+          <select id="weather" name="weather">
+            <option value="">Select weather</option>
+            {% for w in weathers %}
+            <option value="{{ w }}" {{ 'selected' if form.get('weather') == w }}>{{ w }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="picker">
+        <span class="section-title">Clothing</span>
+        {% if clothing %}
+        <p class="picker-hint">Click items to add them to this Look. Pick at least one.</p>
+        <div class="pick-grid">
+          {% for item in clothing %}
+          <label class="pick">
+            <input type="checkbox" name="clothing_ids" value="{{ item.id }}"
+                   {{ 'checked' if item.id|string in selected_ids }}>
+            <div class="pick-card">
+              <div class="pick-photo">
+                {% if item["photo_filename"] %}
+                <img src="{{ url_for('static', filename='uploads/' ~ item['photo_filename']) }}"
+                     alt="{{ item['name'] }}" loading="lazy">
+                {% else %}
+                <span aria-hidden="true">▧</span>
+                {% endif %}
+              </div>
+              <p class="pick-name">{{ item["name"] }}</p>
+              <p class="pick-meta">{{ item["category"] }}{% if item["color"] %} · {{ item["color"] }}{% endif %}</p>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="closet-empty">
+          <h2>Your closet is empty</h2>
+          <p>No clothing yet. <a href="{{ url_for('add_clothing.index') }}">Add some in Add Clothing</a> first.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="cancel" href="{{ url_for('looks.index') }}">Cancel</a>
+      {% if clothing %}
+      <button class="save" type="submit">Save Look</button>
+      {% endif %}
+    </div>
+  </form>
+</section>
+{% endblock %}
